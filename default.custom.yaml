@@ -37,7 +37,7 @@ patch:
     - {accept: comma, send: Page_Up, when: paging}
     - {accept: period, send: Page_Down, when: has_menu}
   menu:
-    page_size: 15
+    page_size: 10
   schema_list:
     - {schema: wubi_pinyin}
     - {schema: wubi_trad}
@@ -51,5 +51,13 @@ patch:
     name: emoji_suggestion
     reset: 1
     states: ["🈚︎", "🈶️"]
-  "translator/enable_sentence": true
-  "translator/enable_user_dict": true
+  translator:
+    dictionary: wubi86
+    prism: wubi_pinyin
+    enable_user_dict: true
+    enable_sentence: true  # 启用词组
+    sort_by_weight: true   # true = 按频率排序，false = 按码长排序
+  style:
+    horizontal: true   # true = 水平（横排），false = 竖排
+    inline_preedit: false  # 是否在输入框内显示预编辑
+    candidate_abbreviate_length: 10  # 候选词最大长度
