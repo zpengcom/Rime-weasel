@@ -1,0 +1,55 @@
+customization:
+  distribution_code_name: Weasel
+  distribution_version: 0.17.4
+  generator: "Rime::SwitcherSettings"
+  modified_time: "Sat Mar 21 14:43:15 2026"
+  rime_version: 1.13.1
+patch:
+  "app_options/Code.exe":
+    ascii_mode: true
+  "app_options/devenv.exe":
+    ascii_mode: true
+  "app_options/illustrator.exe":
+    ascii_mode: true
+  "app_options/photoshop.exe":
+    ascii_mode: true
+  "app_options/plantsvszombies":
+    ascii_mode: true
+  "app_options/sublime_text.exe":
+    ascii_mode: true
+  "app_options/winkawaks.exe":
+    ascii_mode: true
+  "ascii_composer/switch_key":
+    Caps_Lock: commit_code
+    Control_L: inline_ascii
+    Control_R: noop
+    Shift_L: commit_code
+    Shift_R: commit_code
+  emoji_suggestion:
+    inherit_comment: false
+    opencc_config: emoji.json
+    option_name: emoji_suggestion
+    tips: none
+  "engine/filters/@before 0": "simplifier@emoji_suggestion"
+  "key_binder/bindings":
+    - {accept: "Control+Shift+space", toggle: full_shape, when: always}
+    - {accept: "Control+period", toggle: ascii_punct, when: always}
+    - {accept: comma, send: Page_Up, when: paging}
+    - {accept: period, send: Page_Down, when: has_menu}
+  menu:
+    page_size: 15
+  schema_list:
+    - {schema: wubi_pinyin}
+    - {schema: wubi_trad}
+    - {schema: luna_quanpin}
+    - {schema: numbers}
+    - {schema: pinyin_simp}
+    - {schema: wubi86_jidian}
+  "switcher/hotkeys":
+    - "Control+Shift+F8"
+  "switches/@next":
+    name: emoji_suggestion
+    reset: 1
+    states: ["🈚︎", "🈶️"]
+  "translator/enable_sentence": true
+  "translator/enable_user_dict": true
