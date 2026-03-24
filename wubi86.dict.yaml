@@ -8,7 +8,7 @@ name: wubi86
 version: "0.8"
 sort: by_weight
 import_tables: #引入额外的字典
-  - wubi86_user
+  - user
   - wubi86_jidian_extra_district
   - wubi86_jidian_extra
 columns:

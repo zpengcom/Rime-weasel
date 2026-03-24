@@ -1,63 +1,138 @@
+# Rime 输入法全局自定义配置文件：default.custom.yaml
+# 所有输入方案都会继承这个文件的配置
+# encoding: utf-8
+# ============================================================================
+# 【配置说明】
+# ============================================================================
+# 1. 方案切换：Ctrl+Shift+F8
+#
+# 2. 快捷键：
+#    - Shift/Ctrl+Shift+Space/Ctrl+Shift+Period  → 切换全角、中英标点
+#    - 逗号/句号 → 翻页（有候选词时）
+#
+# 3. 中英文切换：
+#    - Shift / Caps Lock → 上屏英文字母
+#    - Ctrl+L → 临时英文模式
+#
+# 4. 需要的文件：
+#    - 必须有 melt_eng.dict.yaml 和 melt_eng.schema.yaml（改名为 eng）
+#    - 需要 wubi86.dict.yaml 和 wubi86_jidian 词库
+#    - 需要 pinyin_simp.dict.yaml 用于拼音反查
+# ============================================================================
+# 参考配置仓库：iDvel/rime-ice：https://github.com/iDvel/rime-ice
+# 五笔 https://github.com/KyleBing/rime-wubi86-jidian
+# ============================================================================
+# 如果android手机端——直接删除此文件，系统会让default.yamy接管
+# ============================================================================
+# 【自定义信息】用于版本管理，不影响功能
+# ============================================================================
 customization:
-  distribution_code_name: Weasel
-  distribution_version: 0.17.4
+  distribution_code_name: Weasel # 小狼毫（Windows 版 Rime）
+  distribution_version: 0.17.4   # 小狼毫版本
   generator: "Rime::SwitcherSettings"
-  modified_time: "Sat Mar 21 14:43:15 2026"
-  rime_version: 1.13.1
+  modified_time: "Sun Mar 22 10:55:09 2026"
+  rime_version: 1.13.1            # Rime 核心版本
+
+# ============================================================================
+# 【补丁配置】下面的所有配置都在 patch 下
+# ============================================================================
 patch:
+
+  # ==========================================================================
+  # 【应用程序选项】针对特定应用自动切换中英文
+  # ==========================================================================
   "app_options/Code.exe":
-    ascii_mode: true
+    ascii_mode: true              # Visual Studio Code - 默认英文模式
   "app_options/devenv.exe":
-    ascii_mode: true
+    ascii_mode: true              # Visual Studio IDE - 默认英文模式
   "app_options/illustrator.exe":
-    ascii_mode: true
+    ascii_mode: true              # Adobe Illustrator - 默认英文
   "app_options/photoshop.exe":
-    ascii_mode: true
-  "app_options/plantsvszombies":
-    ascii_mode: true
+    ascii_mode: true              # Adobe Photoshop - 默认英文
   "app_options/sublime_text.exe":
-    ascii_mode: true
-  "app_options/winkawaks.exe":
-    ascii_mode: true
+    ascii_mode: true              # Sublime Text - 默认英文
+
+  # ==========================================================================
+  # 【中英文切换配置】控制如何切换中英文
+  # ==========================================================================
   "ascii_composer/switch_key":
-    Caps_Lock: commit_code
-    Control_L: inline_ascii
-    Control_R: noop
-    Shift_L: commit_code
-    Shift_R: commit_code
+    Caps_Lock: commit_code        # 大写锁 → 上屏原始输入（字母）
+    Control_L: inline_ascii       # 左Ctrl → 临时英文模式（输入完回到中文）
+    Control_R: noop               # 右Ctrl → 无操作
+    Shift_L: commit_code          # 左Shift → 上屏原始输入
+    Shift_R: commit_code          # 右Shift → 上屏原始输入
+
+  # ==========================================================================
+  # 【Emoji 表情配置】
+  # ==========================================================================
   emoji_suggestion:
-    inherit_comment: false
-    opencc_config: emoji.json
-    option_name: emoji_suggestion
-    tips: none
+    opencc_config: emoji.json     # emoji 转换配置文件
+    option_name: emoji_suggestion # 对应 switches 中的选项名
+    tips: none                    # 不显示转换提示
+    inherit_comment: false        # 不继承原词的注释
+
+  # 添加 emoji 过滤器到引擎（在第一个过滤器之前）
   "engine/filters/@before 0": "simplifier@emoji_suggestion"
+
+  # ==========================================================================
+  # 【快捷键绑定】全局按键功能
+  # ==========================================================================
   "key_binder/bindings":
+    # Ctrl+Shift+空格 → 切换全角/半角
     - {accept: "Control+Shift+space", toggle: full_shape, when: always}
+    
+    # Ctrl+句号 → 切换中英标点
     - {accept: "Control+period", toggle: ascii_punct, when: always}
+    
+    # 逗号 → 上翻页（仅在有菜单时）
     - {accept: comma, send: Page_Up, when: paging}
+    
+    # 句号 → 下翻页（仅在有菜单时）
     - {accept: period, send: Page_Down, when: has_menu}
+    
+    # 减号 → 上翻页（仅在有菜单时）
+    - {accept: minus, send: Page_Up, when: has_menu}
+    
+    # 等号 → 下翻页（仅在有菜单时）
+    - {accept: equal, send: Page_Down, when: has_menu}
+
+  # ==========================================================================
+  # 【菜单配置】候选词显示
+  # ==========================================================================
   menu:
-    page_size: 10
+    page_size: 10                 # 每页显示 10 个候选词
+
+  # ==========================================================================
+  # 【输入方案列表】
+  # 按顺序列出可用的输入方案，用户可通过快捷键切换
+  # ==========================================================================
   schema_list:
-    - {schema: wubi_pinyin}
-    - {schema: wubi_trad}
-    - {schema: luna_quanpin}
-    - {schema: numbers}
-    - {schema: pinyin_simp}
-    - {schema: wubi86_jidian}
+    # 👇 主要方案
+    - {schema: wubi_pinyin}       # 五笔拼音混输 + 英文（推荐首选）
+    - {schema: t9_wubi}           # 九键五笔 + 英文（手机风格）
+
+    # 👇 其他方案
+    - {schema: wubi86_jidian}     # 极点五笔86（纯五笔）
+    - {schema: pinyin_simp}       # 拼音简化（纯拼音反查）
+    - {schema: rime_ice}              # 雾凇拼音（全拼）
+    - {schema: double_pinyin_sogou}   # 搜狗双拼
+    - {schema: wubi_trad}             # 五笔繁体
+    - {schema: t9}                    # 中文拼音九键
+    - {schema: luna_quanpin}          # 朙月拼音
+
+
+  # ==========================================================================
+  # 【方案菜单快捷键】用于打开方案选择菜单
+  # ==========================================================================
   "switcher/hotkeys":
-    - "Control+Shift+F8"
+    - "Control+Shift+F8"          # 按 Ctrl+Shift+F8 打开方案菜单
+
+  # ==========================================================================
+  # 【功能开关选项】在方案菜单中显示可切换的选项
+  # ==========================================================================
   "switches/@next":
-    name: emoji_suggestion
-    reset: 1
-    states: ["🈚︎", "🈶️"]
-  translator:
-    dictionary: wubi86
-    prism: wubi_pinyin
-    enable_user_dict: true
-    enable_sentence: true  # 启用词组
-    sort_by_weight: true   # true = 按频率排序，false = 按码长排序
-  style:
-    horizontal: true   # true = 水平（横排），false = 竖排
-    inline_preedit: false  # 是否在输入框内显示预编辑
-    candidate_abbreviate_length: 10  # 候选词最大长度
+    name: emoji_suggestion        # 选项名称（对应方案中 switches 的名称）
+    reset: 1                      # 默认值：1=开启，0=关闭
+    states: ["🈚︎", "🈶️"]        # 显示文本：[关闭状态, 开启状态]
+
+# ============================================================================

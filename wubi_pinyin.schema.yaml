@@ -1,113 +1,202 @@
-# Rime schema settings
+# Rime 输入法方案配置文件：wubi_pinyin
+# 五笔拼音混输 + 英文支持
 # encoding: utf-8
 
+# ============================================================================
+# 【方案信息】
+# ============================================================================
 schema:
-  schema_id: wubi_pinyin
-  name: "五笔🔮拼音"
-  version: "1.0"
+  schema_id: wubi_pinyin          # 方案唯一标识符，用于在系统中识别
+  name: "五笔🔮拼音"              # 方案显示名称（在方案菜单中显示）
+  version: "1.2"                   # 方案版本号
   author:
-    - 發明人 王永民先生
-  description: |
-    五筆字型86版＋漢語拼音混合輸入。
+    - 發明人 王永民先生            # 五笔发明者
+  description: |                   # 方案描述（在菜单中显示）
+    五筆字型86版＋漢語拼音混合輸入＋英文。
     碼表源自 ibus-table
   dependencies:
-    - pinyin_simp
+    # 依赖的其他方案或词库（必须存在）
+    - wubi86_jidian               # 极点五笔字库
+    - pinyin_simp                  # 拼音反查词库
+    - eng
+    - easy_en                      # 英文支持（改成了 easy_en）
 
+# ============================================================================
+# 【功能开关】可在输入法菜单中切换这些选项
+# ============================================================================
 switches:
-  - name: ascii_mode
-    reset: 0
-    states: [ 中文, 西文 ]
-  - name: full_shape
-    states: [ 半角, 全角 ]
-  - name: extended_charset
-    states: [ 常用, 增廣 ]
-  - name: ascii_punct
-    states: [ 。，, ．， ]
-  - name: show_es
-    reset: 1
-    states: [ 😔, 😀 ]
-  - name: emoji_suggestion
+  - name: ascii_mode              # 中英文切换
+    reset: 0                       # 默认值：0=中文，1=英文
+    states: [ 中文, 西文 ]         # 显示名称
+  - name: ascii_punct  # 中英标点
+    states: [ ¥。, $. ]
+  - name: extended_charset        # 扩展字符集
+    states: [ 常用, 生僻 ]         
+  - name: traditionalization    # 繁体字显示
+    states: [ 简, 繁 ]
+#  - name: show_emoji                 # 显示emoji 表情（自定义功能）
+#    reset: 1
+#    states: [ 😔, 😀 ]
+  - name: emoji_suggestion        # emoji 建议
     reset: 1
     states: [ "🈚︎", "🈶️" ]
-    
+  - name: full_shape              # 全角/半角
+    states: [ 半角, 全角 ]
+# ============================================================================
+# 【输入引擎配置】
+# ============================================================================
 engine:
+  # 处理输入事件的组件（按顺序处理）
   filters:
-    - simplifier@es_conversion
-    - simplifier@emoji_suggestion
+    - simplifier@emoji_suggestion # emoji 建议功能
   processors:
-    - ascii_composer
-    - recognizer
-    - key_binder
-    - speller
-    - punctuator
-    - selector
-    - navigator
-    - express_editor
+    - ascii_composer              # ASCII 字符处理
+    - recognizer                  # 识别输入规则
+    - key_binder                  # 按键绑定
+    - speller                     # 拼写处理
+    - punctuator                  # 标点符号
+    - selector                    # 选字器
+    - navigator                   # 光标导航
+    - express_editor              # 快速编辑
   segmentors:
-    - ascii_segmentor
-    - matcher
-    - abc_segmentor
-    - punct_segmentor
-    - fallback_segmentor
+    - ascii_segmentor             # ASCII 分段
+    - matcher                     # 匹配符
+    - abc_segmentor               # 字母分段
+    - punct_segmentor             # 标点分段
+    - fallback_segmentor          # 后备分段
   translators:
-    - punct_translator
-    - reverse_lookup_translator
-    - table_translator
+    # 翻译器（将编码转换为候选词）
+    - punct_translator            # 标点符号翻译
+    - table_translator@custom_phrase # 自定义短语 99 ← 最高！置顶显示，使用custom_phrase.txt文件
+    - script_translator           # 脚本翻译器（五笔）
+    - lua_translator@*date_translator # 时间、日期、星期（脚本在lua目录）
+    - lua_translator@*calc_translator    # 计算器（脚本在lua目录）
+    - reverse_lookup_translator   # 拼音反查翻译
+#    - table_translator            # 表格翻译器（五笔）自定义短语（没用）
+    - script_translator@eng      # 脚本翻译器（英文）← 英文支持
+    - script_translator@easy_en       # 脚本翻译器（英文）← 英文支持
+    - lua_translator@*force_gc           # 暴力 GC（无需配置块，内置）清理内存中不用的数据，释放空间。
 
-es_conversion:
-  opencc_config: es.json
-  option_name: show_es
-  
+# ============================================================================
+# 【转换配置】
+# ============================================================================
+
 emoji_suggestion:
-  opencc_config: emoji.json
-  option_name: emoji_suggestion
-  tips: none
-  inherit_comment: false  
-  
+  opencc_config: emoji.json       # emoji 转换配置
+  option_name: emoji_suggestion   # 对应 switches 中的选项名
+  tips: none                       # 不显示转换提示
+  inherit_comment: false          # 不继承原词的注释
+
+# ============================================================================
+# 【拼写器配置】处理用户输入的按键
+# ============================================================================
 speller:
-  delimiter: " ;'"
-  #max_code_length: 4  # 四碼頂字上屏
+  delimiter: " ;'"                # 音节分隔符（空格、分号、单引号）
 
+  
+# =========== 五笔翻译器配置 ===========
 translator:
-  dictionary: wubi86
-  prism: wubi_pinyin
-  enable_charset_filter: true
-  enable_sentence: true
-  enable_encoder: true
-  encode_commit_history: true
-  max_phrase_length: 4
-  disable_user_dict_for_patterns:
-    - "^z.*$"
+  dictionary: wubi86              # 使用的字典文件（wubi86.dict.yaml）
+  prism: wubi_pinyin              # 棱镜文件（编码映射）
+  enable_charset_filter: true     # 启用字符集过滤
+  enable_sentence: false          # 自动分词
+  enable_encoder: true            # 启用编码器
+  encode_commit_history: false    # 编码历史提交
+  max_phrase_length: 4            # 最长词组长度
+  initial_quality: 1.3            # 初始质量权重（1.3 = 五笔优先）
+  disable_user_dict_for_patterns: # 禁用用户词典的模式
+    - "^z.*$"                     # z 开头的作为拼音反查
 
+# =========== 英文翻译器配置 ===========
+eng:                              # 英文翻译器配置块（名称需与 translators 中一致）
+  dictionary: eng                 # 英文字典（eng.dict.yaml）
+  enable_sentence: true          # 禁止造句
+  enable_user_dict: true         # 禁用用户词典（英文不需要造词）
+  initial_quality: 1.2            # 初始质量权重（1.1 = 英文次优先）
+  comment_format:                 # 注释格式处理
+    - xform/.*//                  # 隐藏英文提示
+
+easy_en:                              # 英文翻译器配置块（名称需与 translators 中一致）
+  dictionary: easy_en                 # 英文字典（easy_en.dict.yaml）
+  enable_sentence: true          # 禁止造句
+  enable_user_dict: true         # 禁用用户词典（英文不需要造词）
+  initial_quality: 1.1            # 初始质量权重（1.1 = 英文次优先）
+  comment_format:                 # 注释格式处理
+    - xform/.*//                  # 隐藏英文提示
+# ============================================================================
+# 【abc 分段器】处理反查标记
+# ============================================================================
 abc_segmentor:
   extra_tags:
-    - reverse_lookup
+    - reverse_lookup              # 拼音反查标记
 
+# ============================================================================
+# 【拼音反查配置】用 ` 前缀进行拼音反查
+# ============================================================================
 reverse_lookup:
-  dictionary: pinyin_simp
-  prefix: "`"
-  suffix: "'"
-  tips: 〔拼音〕
-  preedit_format:
-    - xform/([nl])v/$1ü/
+  dictionary: pinyin_simp         # 拼音反查词库
+  prefix: "`"                     # 反查前缀（按 ` 进入反查）
+  suffix: "'"                     # 反查后缀（按 ' 结束反查）
+  tips: 〔拼音〕                   # 反查提示
+  preedit_format:                 # 预编辑格式
+    - xform/([nl])v/$1ü/          # v → ü 转换
     - xform/([nl])ue/$1üe/
     - xform/([jqxy])v/$1u/
-
+    - xform/([aeiou])n$/$1n/        # 尾 n → n（带上前字母）
+    - xform/([aeiou])ng$/$1ng/      # 尾 ng → ng
+    # 湖南方言：sh/s, ch/c, zh/z 不分（某些地区）
+    - xform/^sh/s/
+    - xform/^ch/c/
+    - xform/^zh/z/
+      # 多选一替换
+#   - xform/([zyxwvutsrqponmlkjihgfedcba]+)/[$1]/  # 加方括号
+#   
+#   # 删除（替换为空）
+#   - xform/\d+//                   # 删除数字
+#   - xform/\s+//                   # 删除空格
+#   - xform/\[.*\]//                # 删除 [内容]
+#   
+#   # 添加字符
+#   - xform/^/〔/                    # 开头加 〔
+#   - xform/$/〕/                    # 结尾加 〕
+#   
+#   # 大小写转换
+#   - xform/^([a-z])/\U$1/          # 首字母大写
+#   - xform/(.*)/\U$1/              # 全部大写
+#   - xform/(.*)/\L$1/              # 全部小写
+#   
+# ============================================================================
+# 【标点符号配置】
+# ============================================================================
 punctuator:
-  import_preset: default
+  import_preset: default          # 使用默认标点配置
 
+# ============================================================================
+# 【按键绑定】
+# ============================================================================
 key_binder:
-  import_preset: default
-  bindings/+:  
+  import_preset: default          # 使用默认按键绑定
+  bindings/+:                     # 追加新的按键绑定
 
+# ============================================================================
+# 【识别器配置】识别特殊输入
+# ============================================================================
 recognizer:
-  import_preset: default
+  import_preset: default          # 使用默认识别规则
   patterns:
-    reverse_lookup: "`[a-z]*'?$"
+    reverse_lookup: "`[a-z]*'?$"  # 拼音反查模式
 
-menu: 
-  page_size: 10
+# ============================================================================
+# 【菜单配置】候选词显示
+# ============================================================================
+menu:
+  page_size: 10                   # 每页显示 10 个候选词
   
-
-
-
+# =========== 自定义短语 ===========
+custom_phrase:
+  dictionary: ""
+  user_dict: custom_phrase
+  db_class: stabledb
+  enable_completion: false
+  enable_sentence: false
+  initial_quality: 99
