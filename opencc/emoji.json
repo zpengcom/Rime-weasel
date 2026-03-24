@@ -1,0 +1,21 @@
+{
+	"name": "Chinese to Emoji (Merged)",
+	"description": "中文转Emoji - 合并所有emoji文件，完全繁体转简体",
+	"version": "2026-03-22",
+	"segmentation": {
+		"type": "mmseg",
+		"dict": {
+			"type": "text",
+			"file": "emoji_final.txt"
+		}
+	},
+	"conversion_chain": [
+		{
+			"dict": {
+				"type": "text",
+				"file": "emoji_final.txt",
+				"description": "合并了emoji.txt, emoji_word.txt, emoji_category.txt, es.txt, others.txt（11127条词条）"
+			}
+		}
+	]
+}
